@@ -8,7 +8,6 @@ import dev.nextftc.control.feedback.PIDCoefficients
 import dev.nextftc.control.feedforward.BasicFeedforwardParameters
 import dev.nextftc.core.commands.delays.WaitUntil
 import dev.nextftc.core.commands.groups.ParallelGroup
-import dev.nextftc.core.commands.groups.ParallelRaceGroup
 import dev.nextftc.core.subsystems.Subsystem
 import dev.nextftc.hardware.controllable.RunToVelocity
 import dev.nextftc.hardware.impl.MotorEx
@@ -33,8 +32,8 @@ object Flywheel : Subsystem {
 
 
         override fun initialize() {
-            motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-            motor1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+            motor1.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
             controller.goal = KineticState()
     }
@@ -67,11 +66,26 @@ object Flywheel : Subsystem {
             RunToVelocity(
                 controller,
                 (2000.0/60.0) * TICKS_REV,
-                KineticState()
+                KineticState(Double.POSITIVE_INFINITY, 500.0, Double.POSITIVE_INFINITY)
+                ).requires(this),
+                RevisarVueltasHastaUmbral
             )
-        )
+        val parar = RunToVelocity(controller, 0.0, KineticState(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)).requires(this)
+        val reversa = RunToVelocity(controller, (-(1500.0/60.0) * TICKS_REV), KineticState(Double.POSITIVE_INFINITY,
+            Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)).requires(this)
+
+
+
 
         override fun periodic() {
+            if(controlled){
+
+                val velocidad = KineticState(Double.POSITIVE_INFINITY, shootervelocity, Double.POSITIVE_INFINITY)
+                val powermotors = controller.calculate(velocidad)
+                motor1.power = powermotors
+                motor.power = powermotors
+
+            }
 
     }
 
