@@ -13,7 +13,7 @@ import dev.nextftc.hardware.controllable.RunToVelocity
 import dev.nextftc.hardware.impl.MotorEx
 
 @Configurable
-object Flywheel : Subsystem {
+object Shooter : Subsystem {
     private val motor = MotorEx("flywheelmotor1")
     private val motor1 = MotorEx("flywheelmotor2").reversed()
     // aca los declaro
@@ -49,9 +49,9 @@ object Flywheel : Subsystem {
         val shootervelocity
             get() = (motor.velocity + motor1.velocity)/2
         var VueltasD = 0
-        val UmbralVueltas = 30
+        const val UMBRAL_VUELTAS = 30
         val RevisarVueltasHastaUmbral = WaitUntil {
-            if (VueltasD >= UmbralVueltas) {
+            if (VueltasD >= UMBRAL_VUELTAS) {
                 true
             } else { if(shootervelocity > (controller.goal.velocity - 10) && shootervelocity < (controller.goal.velocity + 40)){
                 VueltasD++
