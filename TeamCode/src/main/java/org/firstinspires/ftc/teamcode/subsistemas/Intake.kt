@@ -20,7 +20,7 @@ object Intake : Subsystem{
     val expulsar = InstantCommand{motor.power = -0.85}.requires(this)
     val recogerlento = InstantCommand{motor.power = 0.4}.requires(this)
     val expulsarlento = InstantCommand{motor.power = -0.4}.requires(this)
-    val stop = InstantCommand{motor.power = 0}.requires(this)
+    val stop = InstantCommand{motor.power = 0.0}.requires(this)
 
 
     override fun periodic() {
